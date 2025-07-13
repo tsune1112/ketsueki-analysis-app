@@ -9,4 +9,5 @@
   status = 200
 
 [functions]
-  python_version = "3.9"
+  [functions.python]
+    version = "3.9"
