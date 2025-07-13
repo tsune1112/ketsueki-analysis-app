@@ -82,7 +82,7 @@ def extract_text_from_pdf(content: bytes) -> str:
             text += page.get_text()
     return text
 
-@app.post("/api/upload")
+@app.post("/upload")
 async def upload_file(file: UploadFile = File(...)):
     filename = file.filename
     content = await file.read()
