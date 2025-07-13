@@ -24,7 +24,7 @@ function App() {
     const formData = new FormData();
     formData.append('file', selectedFile);
 
-    const API_URL = process.env.REACT_APP_API_URL || '';
+    const API_URL = process.env.REACT_APP_API_URL;
 
     axios.post(`${API_URL}/api/upload`, formData)
       .then(response => {

@@ -1,14 +1,3 @@
 [build]
-  base = "/"
   command = "cd frontend/app && npm install && npm run build"
   publish = "frontend/app/build"
-  functions = "netlify/functions"
-
-[[redirects]]
-  from = "/api/*"
-  to = "/.netlify/functions/main/:splat"
-  status = 200
-
-[functions]
-  [functions.python]
-    version = "3.9"
