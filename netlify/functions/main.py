@@ -8,6 +8,7 @@ import io
 import re
 
 import fitz  # PyMuPDF
+from mangum import Mangum
 
 app = FastAPI()
 
@@ -70,7 +71,7 @@ def analyze_blood_data(data: pd.DataFrame):
 
     food_recommendations = {}
     for nutrient in recommendations:
-        if nutrient in FOOD_DATABASE:
+        if nutrient in recommendations:
             food_recommendations[nutrient] = FOOD_DATABASE[nutrient]
 
     return {"analysis": results, "recommendations": food_recommendations}
@@ -120,3 +121,5 @@ async def upload_file(file: UploadFile = File(...)):
 @app.get("/")
 def read_root():
     return {"message": "血液データ分析API"}
+
+handler = Mangum(app)
