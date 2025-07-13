@@ -11,3 +11,6 @@
 [functions]
   [functions.python]
     version = "3.9"
+
+[[plugins]]
+  package = "@netlify/plugin-functions-python"
