@@ -7,3 +7,6 @@
   from = "/api/*"
   to = "/.netlify/functions/main/:splat"
   status = 200
+
+[functions]
+  python_version = "3.9"
