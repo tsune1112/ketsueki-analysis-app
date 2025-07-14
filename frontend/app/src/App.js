@@ -79,7 +79,7 @@ function App() {
         <div className="card-body">
           <h5 className="card-title">1. 血液データを入力</h5>
           <div className="row">
-            {Object.keys(HEALTH_STANDARDS).map((item) => (
+            {HEALTH_STANDARDS_KEYS.map((item) => (
               <div className="col-md-4 mb-3" key={item}>
                 <label htmlFor={item} className="form-label">{item}</label>
                 <input
