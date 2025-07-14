@@ -8,7 +8,6 @@ function App() {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState('');
-  const [foodRecommendations, setFoodRecommendations] = useState(null);
 
   const onFileChange = (event) => {
     setSelectedFile(event.target.files[0]);
@@ -31,8 +30,7 @@ function App() {
 
     axios.post(`${API_URL}/.netlify/functions/main/upload`, formData)
       .then((res) => {
-        setAnalysisResult(res.data.analysis);
-        setFoodRecommendations(res.data.recommendations);
+        setAnalysisResult(res.data);
         setMessage('アップロードと分析が完了しました。');
       })
       .catch((err) => {
@@ -72,6 +70,7 @@ function App() {
             </button>
           </div>
           {error && <div className="alert alert-danger mt-3">{error}</div>}
+          {message && <div className="alert alert-info mt-3">{message}</div>}
         </div>
       </div>
 
