@@ -14,31 +14,28 @@ function App() {
     setError('');
   };
 
+  const API_URL = process.env.NODE_ENV === 'production' ? '' : 'http://localhost:8888';
+
   const onFileUpload = () => {
     if (!selectedFile) {
-      setError('ファイルが選択されていません。');
+      setMessage('ファイルを選択してください。');
       return;
     }
-
+    setMessage('ファイルをアップロード中...');
     setIsLoading(true);
+
     const formData = new FormData();
-    formData.append('file', selectedFile);
+    formData.append("file", selectedFile);
 
-    const API_URL = process.env.REACT_APP_API_URL;
-
-    axios.post(`${API_URL}/api/upload`, formData)
-      .then(response => {
-        if (response.data.error) {
-          setError(response.data.error);
-          setAnalysisResult(null);
-        } else {
-          setAnalysisResult(response.data);
-          setError('');
-        }
+    axios.post(`${API_URL}/.netlify/functions/main/upload`, formData)
+      .then((res) => {
+        setAnalysisResult(res.data.analysis);
+        setFoodRecommendations(res.data.recommendations);
+        setMessage('アップロードと分析が完了しました。');
       })
-      .catch(err => {
-        setError('分析中にエラーが発生しました。');
+      .catch((err) => {
         console.error(err);
+        setMessage('ファイルのアップロード中にエラーが発生しました。');
       })
       .finally(() => {
         setIsLoading(false);
