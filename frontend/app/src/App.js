@@ -3,39 +3,54 @@ import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App() {
-  const [selectedFile, setSelectedFile] = useState(null);
   const [analysisResult, setAnalysisResult] = useState(null);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState('');
-
-  const onFileChange = (event) => {
-    setSelectedFile(event.target.files[0]);
-    setAnalysisResult(null);
-    setError('');
-  };
+  const [inputValues, setInputValues] = useState({});
 
   const API_URL = process.env.NODE_ENV === 'production' ? '' : 'http://localhost:8888';
 
-  const onFileUpload = () => {
-    if (!selectedFile) {
-      setMessage('ファイルを選択してください。');
+  const HEALTH_STANDARDS_KEYS = [
+    "ヘモグロビン", "総コレステロール", "HDLコレステロール", "LDLコレステロール",
+    "中性脂肪", "AST", "ALT", "γ-GTP"
+  ];
+
+  const handleInputChange = (item, value) => {
+    setInputValues(prev => ({ ...prev, [item]: value }));
+  };
+
+  const onAnalyzeDirect = () => {
+    const dataToSend = {};
+    for (const key of HEALTH_STANDARDS_KEYS) {
+      if (inputValues[key]) {
+        dataToSend[key] = parseFloat(inputValues[key]);
+      }
+    }
+
+    if (Object.keys(dataToSend).length === 0) {
+      setMessage('少なくとも1つの項目を入力してください。');
       return;
     }
-    setMessage('ファイルをアップロード中...');
+
+    setMessage('データを分析中...');
     setIsLoading(true);
+    setAnalysisResult(null);
+    setError('');
 
-    const formData = new FormData();
-    formData.append("file", selectedFile);
-
-    axios.post(`${API_URL}/.netlify/functions/main/upload`, formData)
+    axios.post(`${API_URL}/.netlify/functions/main/analyze_direct`, { data: dataToSend })
       .then((res) => {
-        setAnalysisResult(res.data);
-        setMessage('アップロードと分析が完了しました。');
+        if (res.data.error) {
+          setError(res.data.error);
+          setAnalysisResult(null);
+        } else {
+          setAnalysisResult(res.data);
+          setMessage('分析が完了しました。');
+        }
       })
       .catch((err) => {
         console.error(err);
-        setMessage('ファイルのアップロード中にエラーが発生しました。');
+        setError('分析中にエラーが発生しました。');
       })
       .finally(() => {
         setIsLoading(false);
@@ -57,18 +72,30 @@ function App() {
     <div className="container mt-5">
       <header className="text-center mb-5">
         <h1>&#x1FA78; 血液データ分析＆健康アドバイス &#x1F331;</h1>
-        <p className="lead">健康診断の結果（CSVまたは画像ファイル）をアップロードしてください。</p>
+        <p className="lead">以下の項目に数値を入力して分析を開始してください。</p>
       </header>
 
       <div className="card shadow-sm mb-4">
         <div className="card-body">
-          <h5 className="card-title">1. ファイルを選択</h5>
-          <div className="input-group">
-            <input type="file" className="form-control" onChange={onFileChange} accept=".csv,.png,.jpg,.jpeg,.pdf" />
-            <button className="btn btn-primary" onClick={onFileUpload} disabled={isLoading}>
-              {isLoading ? '分析中...' : '分析スタート'}
-            </button>
+          <h5 className="card-title">1. 血液データを入力</h5>
+          <div className="row">
+            {Object.keys(HEALTH_STANDARDS).map((item) => (
+              <div className="col-md-4 mb-3" key={item}>
+                <label htmlFor={item} className="form-label">{item}</label>
+                <input
+                  type="number"
+                  step="0.1"
+                  className="form-control"
+                  id={item}
+                  value={inputValues[item] || ''}
+                  onChange={(e) => handleInputChange(item, e.target.value)}
+                />
+              </div>
+            ))}
           </div>
+          <button className="btn btn-primary mt-3" onClick={onAnalyzeDirect} disabled={isLoading}>
+            {isLoading ? '分析中...' : '分析スタート'}
+          </button>
           {error && <div className="alert alert-danger mt-3">{error}</div>}
           {message && <div className="alert alert-info mt-3">{message}</div>}
         </div>

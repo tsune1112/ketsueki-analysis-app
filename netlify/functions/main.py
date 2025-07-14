@@ -9,6 +9,7 @@ import re
 
 import fitz  # PyMuPDF
 from mangum import Mangum
+from pydantic import BaseModel
 
 app = FastAPI()
 
@@ -32,6 +33,9 @@ HEALTH_STANDARDS = {
     "ALT": {"min": 8, "max": 42, "unit": "U/L"},
     "γ-GTP": {"min": 16, "max": 73, "unit": "U/L"},
 }
+
+class BloodDataInput(BaseModel):
+    data: dict[str, float]
 
 # 栄養素と食材のデータベース（サンプル）
 FOOD_DATABASE = {
@@ -75,6 +79,19 @@ def analyze_blood_data(data: pd.DataFrame):
             food_recommendations[nutrient] = FOOD_DATABASE[nutrient]
 
     return {"analysis": results, "recommendations": food_recommendations}
+
+@app.post("/analyze_direct")
+async def analyze_direct(blood_data: BloodDataInput):
+    data = []
+    for item, value in blood_data.data.items():
+        data.append({"項目": item, "結果": value})
+    df = pd.DataFrame(data)
+
+    if "項目" not in df.columns or "結果" not in df.columns:
+        return {"error": "データの形式が正しくありません。「項目」と「結果」が必要です。"}
+
+    analysis_result = analyze_blood_data(df)
+    return analysis_result
 
 def extract_text_from_pdf(content: bytes) -> str:
     text = ""
