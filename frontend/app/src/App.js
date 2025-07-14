@@ -7,6 +7,8 @@ function App() {
   const [analysisResult, setAnalysisResult] = useState(null);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [message, setMessage] = useState('');
+  const [foodRecommendations, setFoodRecommendations] = useState(null);
 
   const onFileChange = (event) => {
     setSelectedFile(event.target.files[0]);
